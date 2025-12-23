@@ -1,18 +1,17 @@
-import mysql from 'mysql2/promise';
+import mysql from "mysql2/promise";
 
 export const pool = mysql.createPool({
-  host: 'localhost',
-  user: 'root',
-  password: 'miclave123',
-  database: 'androsnet'
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  waitForConnections: true,
+  connectionLimit: 10,
 });
 
-// Test conexión
-(async () => {
-  try {
-    const [rows] = await pool.query('SELECT 1 + 1 AS test');
-    console.log('✅ Conexión a MySQL OK:', rows[0].test);
-  } catch (err) {
-    console.error('❌ Error conectando a MySQL:', err.message);
-  }
-})();
+//Para poner en Render: 
+
+//DB_HOST=ip_o_host_db_cliente
+//DB_USER=usuario_produccion
+//DB_PASSWORD=****
+//DB_NAME=base_produccion

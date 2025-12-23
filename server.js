@@ -1,13 +1,12 @@
 import express from 'express';
 import cors from 'cors';
-import { pool } from './db.js';
 import campaignsRoutes from './routes/campaigns.js';
 import questionsRoutes from './routes/questions.js';
 import responsesRoutes from './routes/responses.js';
 import answersRoutes from './routes/answers.js';
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors());
