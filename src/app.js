@@ -1,17 +1,17 @@
-const express = require('express');
-const cors = require('cors');
-const app = express();
-const usersRoutes = require('./routes/users');
+import express from 'express';
+import cors from 'cors';
+import usersRoutes from './routes/users.js';
+import responsesRoutes from './routes/responses.js';
+import errorHandler from './middlewares/errorHandler.js';
 
-app.use('/api/users', usersRoutes);
-app.use('/api/responses', responsesRoutes);
+const app = express();
+
 app.use(cors());
 app.use(express.json());
 
-// Rutas
-app.use('/api/users', usersRoutes);
+app.use('/users', usersRoutes);
+app.use('/responses', responsesRoutes);
 
-// Middleware de errores
-app.use(require('./middlewares/errorHandler'));
+app.use(errorHandler);
 
-module.exports = app;
+export default app;
