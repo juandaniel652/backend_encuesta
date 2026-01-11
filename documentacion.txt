@@ -1,0 +1,5 @@
+10/01/2026
+
+Ya esta desplegado el render llamado backend_encuesta, hay que hacerlo funcional desde aqui
+- Hya que ver porque no guarda bien en github al hacer push
+- Luego de validaicon y todo coordniarlo con el frontend
