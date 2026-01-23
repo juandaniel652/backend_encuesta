@@ -1,17 +1,27 @@
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
-import usersRoutes from './routes/users.js';
-import responsesRoutes from './routes/responses.js';
+
+import campaignsRoutes from './routes/campaigns.js';
 import errorHandler from './middlewares/errorHandler.js';
+
+console.log('APP FILE LOADED');
 
 const app = express();
 
+/* ===== Middlewares globales ===== */
 app.use(cors());
 app.use(express.json());
 
-app.use('/users', usersRoutes);
-app.use('/responses', responsesRoutes);
+/* ===== Healthcheck (producción) ===== */
+app.get('/ping', (req, res) => {
+  res.json({ ok: true, status: 'alive' });
+});
 
+/* ===== Routes ===== */
+app.use('/api/campaigns', campaignsRoutes);
+
+/* ===== Error handler (SIEMPRE al final) ===== */
 app.use(errorHandler);
 
 export default app;
