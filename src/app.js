@@ -9,11 +9,27 @@ console.log('APP FILE LOADED');
 
 const app = express();
 
-/* ===== Middlewares globales ===== */
-app.use(cors());
+/* ===== CORS de producción ===== */
+const allowedOrigins = [
+  "https://encuestaestadistica1.netlify.app",
+  "https://andros-net.com.ar/encuesta/frontend" ///De agustin
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("CORS bloqueado"));
+    }
+  },
+  credentials: true
+}));
+
+/* ===== Middlewares ===== */
 app.use(express.json());
 
-/* ===== Healthcheck (producción) ===== */
+/* ===== Healthcheck ===== */
 app.get('/ping', (req, res) => {
   res.json({ ok: true, status: 'alive' });
 });
@@ -21,7 +37,7 @@ app.get('/ping', (req, res) => {
 /* ===== Routes ===== */
 app.use('/api/campaigns', campaignsRoutes);
 
-/* ===== Error handler (SIEMPRE al final) ===== */
+/* ===== Error handler ===== */
 app.use(errorHandler);
 
 export default app;
