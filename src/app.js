@@ -3,6 +3,7 @@ import express from 'express';
 import cors from 'cors';
 
 import campaignsRoutes from './routes/campaigns.js';
+import responsesRoutes from './routes/responses.js';
 import errorHandler from './middlewares/errorHandler.js';
 
 console.log('APP FILE LOADED');
@@ -36,6 +37,7 @@ app.get('/ping', (req, res) => {
 
 /* ===== Routes ===== */
 app.use('/api/campaigns', campaignsRoutes);
+app.use('/api/responses', responsesRoutes);
 
 /* ===== Error handler ===== */
 app.use(errorHandler);
