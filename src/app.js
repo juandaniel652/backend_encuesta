@@ -5,6 +5,10 @@ import cors from 'cors';
 import campaignsRoutes from './routes/campaigns.js';
 import responsesRoutes from './routes/responses.js';
 import errorHandler from './middlewares/errorHandler.js';
+import { apiService } from './services/apiService.js';
+
+window.apiService = apiService;
+
 
 console.log('APP FILE LOADED');
 
