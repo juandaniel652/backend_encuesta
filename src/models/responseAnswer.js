@@ -1,4 +1,4 @@
-import db from '../config/db.js';
+import supabase from '../config/db.js';
 
 export const bulkInsert = async (responseId, answers) => {
   const payload = answers.map(a => ({
@@ -7,5 +7,5 @@ export const bulkInsert = async (responseId, answers) => {
     option_text: a.option
   }));
 
-  return db.from('response_answers').insert(payload);
+  return supabase.from('response_answers').insert(payload);
 };

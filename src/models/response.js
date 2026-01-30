@@ -1,7 +1,7 @@
-import db from '../config/db.js';
+import supabase from '../config/db.js';
 
 export const existsForCampaign = async (campaignId, clientId) => {
-  const { data } = await db
+  const { data } = await supabase
     .from('responses')
     .select('id')
     .eq('campaign_id', campaignId)
@@ -12,7 +12,7 @@ export const existsForCampaign = async (campaignId, clientId) => {
 };
 
 export const create = async (campaignId, clientId) => {
-  const { data } = await db
+  const { data } = await supabase
     .from('responses')
     .insert({ campaign_id: campaignId, client_id: clientId })
     .select()

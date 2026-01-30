@@ -1,7 +1,8 @@
-import db from '../config/db.js';
+import { supabase } from '../config/db.js';
+
 
 export const saveResponse = async (payload) => {
-  const { error } = await db.rpc('save_response', {
+  const { error } = await supabase.rpc('save_response', {
     p_campaign_id: payload.campaignId,
     p_client_number: payload.clientNumber,
     p_client_name: payload.clientName,

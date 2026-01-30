@@ -1,7 +1,7 @@
-import db from '../config/db.js';
+import supabase from '../config/db.js';
 
 export const findByEmail = async (email) => {
-  const { data, error } = await db
+  const { data, error } = await supabase
     .from('users')
     .select('*')
     .eq('email', email)
