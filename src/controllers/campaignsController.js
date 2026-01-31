@@ -1,3 +1,4 @@
+console.log("BODY RECIBIDO:", req.body);
 import * as CampaignService from '../services/campaignsService.js';
 
 
