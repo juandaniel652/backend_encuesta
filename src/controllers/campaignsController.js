@@ -1,4 +1,3 @@
-console.log("BODY RECIBIDO:", req.body);
 import * as CampaignService from '../services/campaignsService.js';
 
 
@@ -13,7 +12,8 @@ export async function getCampaigns(req, res, next) {
 
 
 export const createCampaign = async (req, res) => {
-  console.log("BODY RECIBIDO:", req.body);
+
+  console.log('🔥 BODY RECIBIDO:', req.body);
 
   const { name, client_type, date_start, date_end } = req.body;
 
