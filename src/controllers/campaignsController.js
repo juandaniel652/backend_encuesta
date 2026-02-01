@@ -2,7 +2,7 @@ import * as CampaignService from '../services/campaignsService.js';
 import { supabase } from '../config/supabaseClient.js';
 
 
-export async function getCampaigns(req, res, next) {
+export async function getCampaigns(res, next) {
   try {
     const campaigns = await CampaignService.getCampaigns();
     res.json(campaigns);
