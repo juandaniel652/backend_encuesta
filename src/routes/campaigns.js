@@ -1,5 +1,3 @@
-console.log("BODY RECIBIDO:", req.body);
-
 import { Router } from 'express';
 import {
   getCampaigns,
