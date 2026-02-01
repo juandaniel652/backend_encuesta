@@ -2,14 +2,16 @@ import * as CampaignService from '../services/campaignsService.js';
 import { supabase } from '../config/supabaseClient.js';
 
 
-export async function getCampaigns(res, next) {
+export async function getCampaigns(req, res) {
   try {
     const campaigns = await CampaignService.getCampaigns();
     res.json(campaigns);
   } catch (err) {
-    next(err);
+    console.error('❌ Error getCampaigns:', err);
+    res.status(500).json({ error: err.message });
   }
 }
+
 
 
 export const createCampaign = async (req, res) => {
