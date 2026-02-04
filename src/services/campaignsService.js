@@ -1,17 +1,22 @@
 import { supabase } from '../config/db.js';
 
+// services/campaignsService.js
 export async function getCampaigns() {
   const { data, error } = await supabase
     .from('campaigns')
-    .select('*')
-    .order('created_at', { ascending: false });
+    .select(`
+      *,
+      questions (
+        *,
+        question_options (*)
+      )
+    `)
+    .order('position', { foreignTable: 'questions' });
 
-  if (error) {
-    throw error;
-  }
-
+  if (error) throw error;
   return data;
 }
+
 
 function validateCampaign(payload) {
   if (!payload?.name) return false;
