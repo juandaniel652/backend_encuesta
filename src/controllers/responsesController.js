@@ -1,5 +1,6 @@
 import { saveResponse } from '../services/responsesService.js';
 
+
 export const createResponse = async (req, res, next) => {
   try {
     const { campaignId, clientNumber, clientName, answers } = req.body;
@@ -14,4 +15,6 @@ export const createResponse = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
+
+  console.log("BODY REAL BACKEND:", req.body);
 };
