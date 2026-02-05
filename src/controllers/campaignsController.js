@@ -1,49 +1,35 @@
-import * as CampaignService from '../services/campaignsService.js';
-import { supabase } from '../config/supabaseClient.js';
-
+import { getCampaigns as getCampaignsService,
+         getCampaignById as getCampaignByIdService,
+         createCampaign as createCampaignService } 
+from '../services/campaignsService.js';
 
 export async function getCampaigns(req, res) {
   try {
-    const campaigns = await CampaignService.getCampaigns();
-    res.json(campaigns);
+    const data = await getCampaignsService();
+    res.json(data);
   } catch (err) {
-    console.error('❌ Error getCampaigns:', err);
-    res.status(500).json({ error: err.message });
+    console.error(err);
+    res.status(500).json({ error: 'Error getting campaigns' });
   }
 }
 
-
-
-export const createCampaign = async (req, res) => {
+export async function getCampaignById(req, res) {
   try {
-    console.log('🔥 BODY RECIBIDO:', req.body);
-
-    const { name, client_type, date_start, date_end } = req.body;
-
-    if (!name || !client_type) {
-      return res.status(400).json({ error: "Invalid campaign data" });
-    }
-
-    const { data, error } = await supabase
-      .from('campaigns')
-      .insert([{
-        name,
-        client_type,
-        date_start,
-        date_end
-      }])
-      .select()
-      .single();
-
-    if (error) {
-      console.error('❌ Supabase error:', error);
-      return res.status(500).json({ error: error.message });
-    }
-
+    const { id } = req.params;
+    const data = await getCampaignByIdService(id);
     res.json(data);
-
   } catch (err) {
-    console.error('💥 Server crash:', err);
-    res.status(500).json({ error: err.message });
+    console.error(err);
+    res.status(404).json({ error: 'Campaign not found' });
   }
-};
+}
+
+export async function createCampaign(req, res) {
+  try {
+    const data = await createCampaignService(req.body);
+    res.json(data);
+  } catch (err) {
+    console.error(err);
+    res.status(400).json({ error: err.message });
+  }
+}

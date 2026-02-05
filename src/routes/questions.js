@@ -5,7 +5,6 @@ import {
 
 const router = Router();
 
-router.get('/', getCampaigns);
-router.post('/', createCampaign);
+router.post('/questions', createQuestion);
 
 export default router;

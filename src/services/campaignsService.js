@@ -1,31 +1,16 @@
-import { supabase } from '../config/db.js';
-
-// services/campaignsService.js
-export async function getCampaigns() {
+export async function getCampaignById(id) {
   const { data, error } = await supabase
     .from('campaigns')
     .select(`
       *,
       questions (
         *,
-        question_options!question_options_question_id_fkey (*)
+        question_options (*)
       )
     `)
-    .order('position', { foreignTable: 'questions' });
+    .eq('id', id)
+    .single();
 
   if (error) throw error;
   return data;
 }
-
-
-export async function createCampaign(payload) {
-  if (!validateCampaign(payload)) {
-    const err = new Error('Invalid campaign data');
-    err.status = 400;
-    throw err;
-  }
-
-  return payload;
-}
-
-
