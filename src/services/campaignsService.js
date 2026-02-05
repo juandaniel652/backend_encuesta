@@ -8,7 +8,7 @@ export async function getCampaigns() {
       *,
       questions (
         *,
-        question_options (*)
+        question_options!question_options_question_id_fkey (*)
       )
     `)
     .order('position', { foreignTable: 'questions' });
@@ -17,18 +17,6 @@ export async function getCampaigns() {
   return data;
 }
 
-
-function validateCampaign(payload) {
-  if (!payload?.name) return false;
-  if (!Array.isArray(payload.questions)) return false;
-  if (payload.questions.length === 0) return false;
-
-  for (const q of payload.questions) {
-    if (!q.text) return false;
-  }
-
-  return true;
-}
 
 export async function createCampaign(payload) {
   if (!validateCampaign(payload)) {
