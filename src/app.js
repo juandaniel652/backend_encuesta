@@ -4,6 +4,7 @@ import cors from 'cors';
 
 import campaignsRoutes from './routes/campaigns.js';
 import responsesRoutes from './routes/responses.js';
+import questionsRoutes from './routes/questions.js';
 import errorHandler from './middlewares/errorHandler.js';
 
 console.log('APP FILE LOADED');
