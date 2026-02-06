@@ -48,12 +48,44 @@ export async function createCampaign(payload) {
     throw err;
   }
 
-  const { data, error } = await supabase
+  // 1. Insert campaign
+  const { data: campaign, error } = await supabase
     .from('campaigns')
-    .insert(payload)
+    .insert([{
+      name: payload.name,
+      client_type: payload.clientType,
+      date_start: payload.dateStart,
+      date_end: payload.dateEnd
+    }])
     .select()
     .single();
 
   if (error) throw error;
-  return data;
+
+  // 2. Insert questions
+  for (const q of payload.questions) {
+    const { data: question } = await supabase
+      .from('questions')
+      .insert([{
+        campaign_id: campaign.id,
+        text: q.text,
+        type: q.type,
+        position: q.position
+      }])
+      .select()
+      .single();
+
+    // 3. Insert options
+    if (q.options?.length) {
+      const options = q.options.map(opt => ({
+        question_id: question.id,
+        text: opt.text
+      }));
+
+      await supabase.from('question_options').insert(options);
+    }
+  }
+
+  return campaign;
 }
+
