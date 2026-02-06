@@ -1,10 +1,9 @@
 import { Router } from 'express';
-import {
-  createQuestion
-} from '../controllers/questionsController.js';
+import { createQuestion } from '../controllers/questionsController.js';
 
 const router = Router();
 
-router.post('/questions', createQuestion);
+// POST /questions
+router.post('/', createQuestion);
 
 export default router;

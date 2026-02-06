@@ -1,24 +1,13 @@
 // controllers/questionsController.js
-import { supabase } from '../config/supabaseClient.js';
+import { createQuestion as createQuestionService } from '../services/questionsService.js';
 
-export const createQuestion = async (req, res) => {
-  const { campaign_id, text, type, position } = req.body;
-
-  const { data, error } = await supabase
-    .from('questions')
-    .insert([{
-      campaign_id,
-      text,
-      type,
-      position
-    }])
-    .select()
-    .single();
-
-  if (error) {
-    console.error(error);
-    return res.status(500).json({ error: error.message });
+export async function createQuestion(req, res) {
+  try {
+    const payload = req.body; // { campaign_id, text, type, position }
+    const question = await createQuestionService(payload);
+    res.json(question);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
   }
-
-  res.json(data);
-};
+}
