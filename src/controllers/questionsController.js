@@ -1,13 +1,11 @@
-// controllers/questionsController.js
-import { createQuestion as createQuestionService } from '../services/questionsService.js';
+import { createQuestion as createQuestionService } from '../services/campaignsService.js';
 
 export async function createQuestion(req, res) {
   try {
-    const payload = req.body; // { campaign_id, text, type, position }
-    const question = await createQuestionService(payload);
-    res.json(question);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: err.message });
+    const data = await createQuestionService(req.body);
+    res.json(data);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
   }
 }
