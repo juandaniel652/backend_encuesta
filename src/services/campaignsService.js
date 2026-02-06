@@ -113,3 +113,14 @@ export async function deleteQuestion(id) {
 
   if (error) throw error;
 }
+
+export async function createQuestionOption({ question_id, text }) {
+  const { data, error } = await supabase
+    .from('question_options')
+    .insert([{ question_id, text }])
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}

@@ -5,6 +5,7 @@ import cors from 'cors';
 import campaignsRoutes from './routes/campaigns.js';
 import responsesRoutes from './routes/responses.js';
 import questionsRoutes from './routes/questions.js';
+import questionOptionsRoutes from './routes/questionOptions.js';
 import errorHandler from './middlewares/errorHandler.js';
 
 console.log('APP FILE LOADED');
@@ -40,6 +41,7 @@ app.get('/ping', (req, res) => {
 app.use('/api/campaigns', campaignsRoutes);
 app.use('/api/responses', responsesRoutes);
 app.use('/api/questions', questionsRoutes);
+app.use('/api/question-options', questionOptionsRoutes);
 
 
 /* ===== Error handler ===== */
