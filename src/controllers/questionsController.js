@@ -4,8 +4,8 @@ export async function createQuestion(req, res) {
   try {
     const data = await createQuestionService(req.body);
     res.json(data);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: error.message });
+  } catch (err) {
+    console.error(err);
+    res.status(400).json({ error: err.message });
   }
 }

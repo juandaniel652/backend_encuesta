@@ -38,6 +38,8 @@ app.get('/ping', (req, res) => {
 /* ===== Routes ===== */
 app.use('/api/campaigns', campaignsRoutes);
 app.use('/api/responses', responsesRoutes);
+app.use('/api/questions', questionsRoutes);
+
 
 /* ===== Error handler ===== */
 app.use(errorHandler);
