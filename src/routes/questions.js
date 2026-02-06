@@ -5,5 +5,7 @@ const router = Router();
 
 // POST /questions
 router.post('/', createQuestion);
+router.delete('/:id', deleteQuestion);
+
 
 export default router;
