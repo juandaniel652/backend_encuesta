@@ -1,41 +1,62 @@
 import { Router } from 'express';
-import { pool } from '../config/db.js';
-import {
-  getCampaigns,
-  getCampaignById,
-  createCampaign
-} from '../controllers/campaignsController.js';
-
-
+import { supabase } from '../config/db.js';
 
 const router = Router();
 
-router.get('/', getCampaigns);
-router.get('/:id', getCampaignById);
-router.post('/', createCampaign);
+router.get('/', async (req, res) => {
+  const { data, error } = await supabase
+    .from('campaigns')
+    .select('*');
 
-// UPDATE
+  if (error) return res.status(500).json({ error: error.message });
+  res.json(data);
+});
+
+router.get('/:id', async (req, res) => {
+  const { id } = req.params;
+
+  const { data, error } = await supabase
+    .from('campaigns')
+    .select('*')
+    .eq('id', id)
+    .single();
+
+  if (error) return res.status(404).json({ error: error.message });
+  res.json(data);
+});
+
+router.post('/', async (req, res) => {
+  const { name, client_type, date_start, date_end } = req.body;
+
+  const { data, error } = await supabase
+    .from('campaigns')
+    .insert([{ name, client_type, date_start, date_end }])
+    .select()
+    .single();
+
+  if (error) return res.status(500).json({ error: error.message });
+  res.status(201).json(data);
+});
+
+// UPDATE (el que te falla)
 router.put('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const { name, client_type, date_start, date_end } = req.body;
 
-    const result = await pool.query(
-      `UPDATE campaigns 
-       SET name = $1, client_type = $2, date_start = $3, date_end = $4
-       WHERE id = $5
-       RETURNING *`,
-      [name, client_type, date_start, date_end, id]
-    );
+    const { data, error } = await supabase
+      .from('campaigns')
+      .update({ name, client_type, date_start, date_end })
+      .eq('id', id)
+      .select()
+      .single();
 
-    if (result.rowCount === 0) {
-      return res.status(404).json({ error: 'Campaign not found' });
-    }
+    if (error) throw error;
 
-    res.json(result.rows[0]);
+    res.json(data);
   } catch (err) {
     console.error('UPDATE CAMPAIGN ERROR:', err);
-    res.status(500).json({ error: 'Error updating campaign' });
+    res.status(500).json({ error: err.message });
   }
 });
 
