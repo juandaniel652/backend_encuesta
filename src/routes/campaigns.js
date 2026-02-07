@@ -1,9 +1,12 @@
 import { Router } from 'express';
+import { pool } from '../db.js';
 import {
   getCampaigns,
   getCampaignById,
   createCampaign
 } from '../controllers/campaignsController.js';
+
+
 
 const router = Router();
 
