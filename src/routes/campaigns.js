@@ -1,17 +1,18 @@
 import { Router } from 'express';
 import {
   getCampaigns,
-  getCampaignById,   // 👈 NUEVO
+  getCampaignById,
   createCampaign
 } from '../controllers/campaignsController.js';
 
 const router = Router();
 
 router.get('/', getCampaigns);
-router.get('/:id', getCampaignById);   // 👈 NUEVO
+router.get('/:id', getCampaignById);
 router.post('/', createCampaign);
 
-router.put('/campaigns/:id', async (req, res) => {
+// UPDATE
+router.put('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const { name, client_type, date_start, date_end } = req.body;
@@ -34,6 +35,5 @@ router.put('/campaigns/:id', async (req, res) => {
     res.status(500).json({ error: 'Error updating campaign' });
   }
 });
-
 
 export default router;
