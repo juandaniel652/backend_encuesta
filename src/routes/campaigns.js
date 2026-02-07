@@ -34,7 +34,7 @@ router.put('/:id', async (req, res) => {
 
     res.json(result.rows[0]);
   } catch (err) {
-    console.error(err);
+    console.error('UPDATE CAMPAIGN ERROR:', err);
     res.status(500).json({ error: 'Error updating campaign' });
   }
 });
