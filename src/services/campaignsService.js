@@ -53,7 +53,7 @@ export async function createCampaign(payload) {
     .from('campaigns')
     .insert([{
       name: payload.name,
-      client_type: payload.clientType,
+      client_type: payload.clientType || 'standard',
       date_start: payload.dateStart,
       date_end: payload.dateEnd
     }])
