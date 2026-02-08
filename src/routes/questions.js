@@ -15,6 +15,7 @@ router.get('/campaign/:campaignId', async (req, res) => {
       .from('questions')
       .select('id, campaign_id, text, type, position')
       .eq('campaign_id', campaignId)
+      .eq('is_active', true)
       .order('position', { ascending: true });
 
     if (error) throw error;
@@ -60,18 +61,20 @@ router.delete('/:id', async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('questions')
-      .delete()
+      .update({ is_active: false })
       .eq('id', id)
-      .select();
+      .select()
+      .single();
 
     if (error) throw error;
-    if (!data || data.length === 0) return res.status(404).json({ error: 'Question not found' });
+    if (!data) return res.status(404).json({ error: 'Question not found' });
 
-    res.json({ success: true, deleted: data[0] });
+    res.json({ success: true, deleted: data });
   } catch (err) {
-    console.error('DELETE QUESTION ERROR:', err);
+    console.error('SOFT DELETE QUESTION ERROR:', err);
     res.status(500).json({ error: err.message });
   }
 });
+
 
 export default router;
