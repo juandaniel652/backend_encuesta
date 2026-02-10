@@ -79,31 +79,63 @@ router.put('/:id/full', async (req, res) => {
   const { campaign, questions } = req.body;
 
   try {
-    // update campaign
+    // 1. update campaign
     await supabase
       .from('campaigns')
       .update(campaign)
       .eq('id', id);
 
-    // update questions
+    // 2. questions
     for (const q of questions) {
-      await supabase
-        .from('questions')
-        .update({
-          text: q.text,
-          position: q.position,
-          is_active: q.is_active !== false
-        })
-        .eq('id', q.id);
 
-      for (const o of q.options || []) {
+      let questionId = q.id;
+
+      if (!questionId) {
+        // INSERT
+        const { data: newQ } = await supabase
+          .from('questions')
+          .insert([{
+            campaign_id: id,
+            text: q.text,
+            position: q.position,
+            is_active: true
+          }])
+          .select()
+          .single();
+
+        questionId = newQ.id;
+      } else {
+        // UPDATE
         await supabase
-          .from('question_options')
+          .from('questions')
           .update({
-            text: o.text,
-            is_active: o.is_active !== false
+            text: q.text,
+            position: q.position,
+            is_active: q.is_active !== false
           })
-          .eq('id', o.id);
+          .eq('id', questionId);
+      }
+
+      // 3. options
+      for (const o of q.options || []) {
+
+        if (!o.id) {
+          await supabase
+            .from('question_options')
+            .insert([{
+              question_id: questionId,
+              text: o.text,
+              is_active: true
+            }]);
+        } else {
+          await supabase
+            .from('question_options')
+            .update({
+              text: o.text,
+              is_active: o.is_active !== false
+            })
+            .eq('id', o.id);
+        }
       }
     }
 
@@ -114,8 +146,6 @@ router.put('/:id/full', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
-
 
 
 export default router;
