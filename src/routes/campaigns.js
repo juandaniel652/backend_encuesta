@@ -80,13 +80,17 @@ router.put('/:id/full', async (req, res) => {
 
   try {
     // 1. Update campaign
-    await supabase.from('campaigns')
+    const { error: campErr } = await supabase
+      .from('campaigns')
       .update(campaign)
       .eq('id', id);
 
+    if (campErr) throw campErr;
+
     // 2. Update questions
     for (const q of questions) {
-      await supabase.from('questions')
+      await supabase
+        .from('questions')
         .update({
           text: q.text,
           is_active: q.is_active !== false
@@ -95,7 +99,8 @@ router.put('/:id/full', async (req, res) => {
 
       // 3. Update options
       for (const o of q.options) {
-        await supabase.from('question_options')
+        await supabase
+          .from('question_options')
           .update({
             text: o.text,
             is_active: o.is_active !== false
@@ -105,11 +110,13 @@ router.put('/:id/full', async (req, res) => {
     }
 
     res.json({ success: true });
+
   } catch (err) {
     console.error('SAVE FULL CAMPAIGN ERROR', err);
     res.status(500).json({ error: err.message });
   }
 });
+
 
 
 export default router;
