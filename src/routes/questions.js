@@ -13,7 +13,7 @@ router.get('/campaign/:campaignId', async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('questions')
-      .select('id, campaign_id, text, type, position')
+      .select('id, campaign_id, text, type, position, is_active')
       .eq('campaign_id', campaignId)
       .eq('is_active', true)
       .order('position', { ascending: true });

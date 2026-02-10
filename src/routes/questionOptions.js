@@ -13,7 +13,7 @@ router.get('/:questionId', async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('question_options')
-      .select('id, question_id, text, position')
+      .select('id, question_id, text, position, is_active')
       .eq('question_id', questionId)
       .order('position', { ascending: true });
 
