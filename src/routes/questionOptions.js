@@ -34,6 +34,12 @@ router.get('/:questionId', async (req, res) => {
  */
 router.post('/', async (req, res) => {
   const { question_id, text, position } = req.body;
+  
+  if (typeof text !== 'string') {
+    return res.status(400).json({
+      error: 'text debe ser string, no objeto'
+    });
+  }
 
   try {
     const { data, error } = await supabase
