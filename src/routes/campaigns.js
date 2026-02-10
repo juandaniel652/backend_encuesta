@@ -39,25 +39,42 @@ router.post('/', async (req, res) => {
 });
 
 // UPDATE (el que te falla)
-router.put('/:id', async (req, res) => {
+router.put('/:id/full', async (req, res) => {
+  const { id } = req.params;
+  const { campaign, questions } = req.body;
+
   try {
-    const { id } = req.params;
-    const { name, client_type, date_start, date_end } = req.body;
+    // 1. Update campaign
+    await supabase.from('campaigns')
+      .update(campaign)
+      .eq('id', id);
 
-    const { data, error } = await supabase
-      .from('campaigns')
-      .update({ name, client_type, date_start, date_end })
-      .eq('id', id)
-      .select()
-      .single();
+    // 2. Update questions
+    for (const q of questions) {
+      await supabase.from('questions')
+        .update({
+          text: q.text,
+          is_active: q.is_active !== false
+        })
+        .eq('id', q.id);
 
-    if (error) throw error;
+      // 3. Update options
+      for (const o of q.options) {
+        await supabase.from('question_options')
+          .update({
+            text: o.text,
+            is_active: o.is_active !== false
+          })
+          .eq('id', o.id);
+      }
+    }
 
-    res.json(data);
+    res.json({ success: true });
   } catch (err) {
-    console.error('UPDATE CAMPAIGN ERROR:', err);
+    console.error('SAVE FULL CAMPAIGN ERROR', err);
     res.status(500).json({ error: err.message });
   }
 });
+
 
 export default router;
