@@ -15,15 +15,50 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   const { id } = req.params;
 
-  const { data, error } = await supabase
-    .from('campaigns')
-    .select('*')
-    .eq('id', id)
-    .single();
+  try {
+    // Campaign
+    const { data: campaign, error: campErr } = await supabase
+      .from('campaigns')
+      .select('*')
+      .eq('id', id)
+      .single();
 
-  if (error) return res.status(404).json({ error: error.message });
-  res.json(data);
+    if (campErr) throw campErr;
+
+    // Questions
+    const { data: questions, error: qErr } = await supabase
+      .from('questions')
+      .select('*')
+      .eq('campaign_id', id)
+      .eq('is_active', true)
+      .order('position');
+
+    if (qErr) throw qErr;
+
+    // Options
+    for (const q of questions) {
+      const { data: options, error: oErr } = await supabase
+        .from('question_options')
+        .select('*')
+        .eq('question_id', q.id)
+        .eq('is_active', true)
+        .order('position');
+
+      if (oErr) throw oErr;
+      q.options = options || [];
+    }
+
+    res.json({
+      ...campaign,
+      questions
+    });
+
+  } catch (err) {
+    console.error('GET CAMPAIGN FULL ERROR', err);
+    res.status(500).json({ error: err.message });
+  }
 });
+
 
 router.post('/', async (req, res) => {
   const { name, client_type, date_start, date_end } = req.body;
