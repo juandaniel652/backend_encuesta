@@ -79,26 +79,24 @@ router.put('/:id/full', async (req, res) => {
   const { campaign, questions } = req.body;
 
   try {
-    // 1. Update campaign
-    const { error: campErr } = await supabase
+    // update campaign
+    await supabase
       .from('campaigns')
       .update(campaign)
       .eq('id', id);
 
-    if (campErr) throw campErr;
-
-    // 2. Update questions
+    // update questions
     for (const q of questions) {
       await supabase
         .from('questions')
         .update({
           text: q.text,
+          position: q.position,
           is_active: q.is_active !== false
         })
         .eq('id', q.id);
 
-      // 3. Update options
-      for (const o of q.options) {
+      for (const o of q.options || []) {
         await supabase
           .from('question_options')
           .update({
@@ -112,10 +110,11 @@ router.put('/:id/full', async (req, res) => {
     res.json({ success: true });
 
   } catch (err) {
-    console.error('SAVE FULL CAMPAIGN ERROR', err);
+    console.error('FULL SAVE ERROR:', err);
     res.status(500).json({ error: err.message });
   }
 });
+
 
 
 
