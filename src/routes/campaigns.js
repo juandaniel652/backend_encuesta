@@ -60,40 +60,35 @@ router.get('/:id', async (req, res) => {
 });
 
 
-router.post('/', async (req, res) => {
-  const { campaign_id, text, type } = req.body;
+router.put('/:id/full', async (req, res) => {
+  const { id } = req.params;
+  const { campaign, questions } = req.body;
 
   try {
-    const { data: lastQuestions, error: posError } = await supabase
-      .from('questions')
-      .select('position')
-      .eq('campaign_id', campaign_id)
-      .order('position', { ascending: false })
-      .limit(1);
+    // actualizar campaña
+    const { error: campaignError } = await supabase
+      .from('campaigns')
+      .update(campaign)
+      .eq('id', id);
 
-    if (posError) throw posError;
+    if (campaignError) throw campaignError;
 
-    const nextPosition = lastQuestions.length > 0
-      ? lastQuestions[0].position + 1
-      : 1;
+    // actualizar preguntas
+    for (const q of questions) {
+      await supabase
+        .from('questions')
+        .update({
+          text: q.text,
+          type: q.type,
+          position: q.position,
+          is_active: q.is_active
+        })
+        .eq('id', q.id);
+    }
 
-    const { data, error } = await supabase
-      .from('questions')
-      .insert([{
-        campaign_id,
-        text,
-        type,
-        position: nextPosition,
-        is_active: true
-      }])
-      .select()
-      .single();
-
-    if (error) throw error;
-
-    res.status(201).json(data);
+    res.json({ success: true });
   } catch (err) {
-    console.error('CREATE QUESTION ERROR:', err);
+    console.error('FULL SAVE ERROR:', err);
     res.status(500).json({ error: err.message });
   }
 });
