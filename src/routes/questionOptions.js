@@ -33,54 +33,47 @@ router.get('/:questionId', async (req, res) => {
  * body: { question_id, text, position }
  */
 router.post('/', async (req, res) => {
-  const { question_id, text, position } = req.body;
-  
+  const { question_id, text } = req.body;
+
   if (typeof text !== 'string') {
     return res.status(400).json({
-      error: 'text debe ser string, no objeto'
+      error: 'text debe ser string'
     });
   }
 
   try {
+    // 1. Traer última posición
+    const { data: lastOptions, error: posError } = await supabase
+      .from('question_options')
+      .select('position')
+      .eq('question_id', question_id)
+      .order('position', { ascending: false })
+      .limit(1);
+
+    if (posError) throw posError;
+
+    const nextPosition = lastOptions.length > 0
+      ? lastOptions[0].position + 1
+      : 1;
+
+    // 2. Insertar
     const { data, error } = await supabase
       .from('question_options')
-      .insert([{ question_id, text, position }])
+      .insert([{
+        question_id,
+        text,
+        position: nextPosition,
+        is_active: true
+      }])
       .select()
       .single();
 
     if (error) throw error;
 
     res.status(201).json(data);
+
   } catch (err) {
     console.error('CREATE QUESTION OPTION ERROR:', err);
     res.status(500).json({ error: err.message });
   }
 });
-
-/**
- * DELETE /question-options/:id
- * Borra una opción
- */
-router.delete('/:id', async (req, res) => {
-  const { id } = req.params;
-
-  try {
-    const { data, error } = await supabase
-      .from('question_options')
-      .update({ is_active: false })
-      .eq('id', id)
-      .select()
-      .single();
-
-    if (error) throw error;
-    if (!data) return res.status(404).json({ error: 'Option not found' });
-
-    res.json({ success: true, deleted: data });
-  } catch (err) {
-    console.error('SOFT DELETE QUESTION OPTION ERROR:', err);
-    res.status(500).json({ error: err.message });
-  }
-});
-
-
-export default router;

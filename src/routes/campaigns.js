@@ -61,91 +61,43 @@ router.get('/:id', async (req, res) => {
 
 
 router.post('/', async (req, res) => {
-  const { name, client_type, date_start, date_end } = req.body;
-
-  const { data, error } = await supabase
-    .from('campaigns')
-    .insert([{ name, client_type, date_start, date_end }])
-    .select()
-    .single();
-
-  if (error) return res.status(500).json({ error: error.message });
-  res.status(201).json(data);
-});
-
-// UPDATE (el que te falla)
-router.put('/:id/full', async (req, res) => {
-  const { id } = req.params;
-  const { campaign, questions } = req.body;
+  const { campaign_id, text, type } = req.body;
 
   try {
-    // 1. update campaign
-    await supabase
-      .from('campaigns')
-      .update(campaign)
-      .eq('id', id);
+    const { data: lastQuestions, error: posError } = await supabase
+      .from('questions')
+      .select('position')
+      .eq('campaign_id', campaign_id)
+      .order('position', { ascending: false })
+      .limit(1);
 
-    // 2. questions
-    for (const q of questions) {
+    if (posError) throw posError;
 
-      let questionId = q.id;
+    const nextPosition = lastQuestions.length > 0
+      ? lastQuestions[0].position + 1
+      : 1;
 
-      if (!questionId) {
-        // INSERT
-        const { data: newQ } = await supabase
-          .from('questions')
-          .insert([{
-            campaign_id: id,
-            text: q.text,
-            position: q.position,
-            is_active: true
-          }])
-          .select()
-          .single();
+    const { data, error } = await supabase
+      .from('questions')
+      .insert([{
+        campaign_id,
+        text,
+        type,
+        position: nextPosition,
+        is_active: true
+      }])
+      .select()
+      .single();
 
-        questionId = newQ.id;
-      } else {
-        // UPDATE
-        await supabase
-          .from('questions')
-          .update({
-            text: q.text,
-            position: q.position,
-            is_active: q.is_active !== false
-          })
-          .eq('id', questionId);
-      }
+    if (error) throw error;
 
-      // 3. options
-      for (const o of q.options || []) {
-
-        if (!o.id) {
-          await supabase
-            .from('question_options')
-            .insert([{
-              question_id: questionId,
-              text: o.text,
-              is_active: true
-            }]);
-        } else {
-          await supabase
-            .from('question_options')
-            .update({
-              text: o.text,
-              is_active: o.is_active !== false
-            })
-            .eq('id', o.id);
-        }
-      }
-    }
-
-    res.json({ success: true });
-
+    res.status(201).json(data);
   } catch (err) {
-    console.error('FULL SAVE ERROR:', err);
+    console.error('CREATE QUESTION ERROR:', err);
     res.status(500).json({ error: err.message });
   }
 });
+
 
 
 export default router;
