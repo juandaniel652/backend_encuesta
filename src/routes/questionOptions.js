@@ -78,5 +78,38 @@ router.post('/', async (req, res) => {
   }
 });
 
+/**
+ * PUT /question-options/:id
+ * Actualiza el texto de una opción
+ */
+router.put('/:id', async (req, res) => {
+  const { id } = req.params;
+  const { text } = req.body;
+
+  if (typeof text !== 'string') {
+    return res.status(400).json({ error: 'text debe ser string' });
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('question_options')
+      .update({ text })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    if (!data) {
+      return res.status(404).json({ error: 'Opción no encontrada' });
+    }
+
+    res.json(data);
+  } catch (err) {
+    console.error('UPDATE QUESTION OPTION ERROR:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 
 export default router;
