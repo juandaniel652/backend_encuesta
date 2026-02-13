@@ -21,4 +21,15 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+router.put('/:id/full', async (req, res) => {
+  const { id } = req.params;
+  const { campaign, questions } = req.body;
+
+  // lógica de guardado completo
+  const result = await saveCampaignFull(id, campaign, questions);
+
+  res.json(result);
+});
+
+
 export default router;
