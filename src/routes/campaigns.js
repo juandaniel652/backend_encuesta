@@ -1,4 +1,8 @@
+import { Router } from 'express';
 import { supabase } from '../config/db.js';
+
+const router = Router();
+
 
 router.put('/:id/full', async (req, res) => {
   const { id } = req.params;
