@@ -1,5 +1,7 @@
 import { Router } from 'express';
 import { getCampaigns, getCampaignById } from '../services/campaignsService.js';
+import { saveCampaignFull } from '../services/campaignService.js';
+
 
 const router = Router();
 
