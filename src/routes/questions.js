@@ -76,5 +76,32 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+/**
+ * PUT /questions/:id
+ * Actualiza una pregunta
+ */
+router.put('/:id', async (req, res) => {
+  const { id } = req.params;
+  const { text, type, position, is_active } = req.body;
+
+  try {
+    const { data, error } = await supabase
+      .from('questions')
+      .update({ text, type, position, is_active })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    if (!data) return res.status(404).json({ error: 'Question not found' });
+
+    res.json(data);
+  } catch (err) {
+    console.error('UPDATE QUESTION ERROR:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
 
 export default router;

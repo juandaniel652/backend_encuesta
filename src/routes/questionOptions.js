@@ -112,4 +112,32 @@ router.put('/:id', async (req, res) => {
 });
 
 
+/**
+ * DELETE /question-options/:id
+ * Soft delete opción
+ */
+router.delete('/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const { data, error } = await supabase
+      .from('question_options')
+      .update({ is_active: false })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    if (!data) return res.status(404).json({ error: 'Option not found' });
+
+    res.json({ success: true, deleted: data });
+  } catch (err) {
+    console.error('DELETE OPTION ERROR:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+
+
 export default router;
