@@ -1,7 +1,9 @@
 import { Router } from 'express';
-import { getCampaigns, getCampaignById } from '../services/campaignsService.js';
-import { saveCampaignFull } from '../services/campaignService.js';
-
+import {
+  getCampaigns,
+  getCampaignById,
+  saveCampaignFull
+} from '../services/campaignsService.js';
 
 const router = Router();
 
@@ -24,14 +26,16 @@ router.get('/:id', async (req, res) => {
 });
 
 router.put('/:id/full', async (req, res) => {
-  const { id } = req.params;
-  const { campaign, questions } = req.body;
+  try {
+    const { id } = req.params;
+    const { campaign, questions } = req.body;
 
-  // lógica de guardado completo
-  const result = await saveCampaignFull(id, campaign, questions);
+    const result = await saveCampaignFull(id, campaign, questions);
+    res.json(result);
 
-  res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
-
 
 export default router;
