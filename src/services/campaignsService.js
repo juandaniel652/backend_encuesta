@@ -35,7 +35,7 @@ export async function getCampaignById(id) {
 
 export async function saveCampaignFull(id, campaign, questions) {
 
-  const { error: campaignError } = await supabase
+  await supabase
     .from('campaigns')
     .update({
       name: campaign.name,
@@ -45,26 +45,29 @@ export async function saveCampaignFull(id, campaign, questions) {
     })
     .eq('id', id);
 
-  if (campaignError) throw campaignError;
-
   await supabase
     .from('questions')
     .delete()
     .eq('campaign_id', id);
 
+  // 🔥 REGENERAR POSITIONS
+  let position = 1;
+
   for (const q of questions) {
-    const { data: newQuestion, error: qError } = await supabase
+    if (q.is_active === false) continue;
+
+    const { data: newQuestion, error } = await supabase
       .from('questions')
       .insert([{
         campaign_id: id,
         text: q.text,
         type: q.type,
-        position: q.position
+        position: position++
       }])
       .select()
       .single();
 
-    if (qError) throw qError;
+    if (error) throw error;
 
     if (q.options?.length) {
       const options = q.options
