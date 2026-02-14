@@ -167,5 +167,44 @@ router.put('/:id/full', async (req, res) => {
   }
 });
 
+// 🔹 Borrar campaña completa (con preguntas y opciones)
+router.delete('/:id', async (req, res) => {
+  try {
+    const campaignId = req.params.id;
+
+    // 1. Borrar opciones de preguntas
+    const { data: questions } = await supabase
+      .from('questions')
+      .select('id')
+      .eq('campaign_id', campaignId);
+
+    const questionIds = questions.map(q => q.id);
+
+    if (questionIds.length) {
+      await supabase
+        .from('question_options')
+        .delete()
+        .in('question_id', questionIds);
+
+      await supabase
+        .from('questions')
+        .delete()
+        .in('id', questionIds);
+    }
+
+    // 2. Borrar campaña
+    await supabase
+      .from('campaigns')
+      .delete()
+      .eq('id', campaignId);
+
+    res.json({ ok: true });
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
 // 🔹 Exportar router
 export default router;
