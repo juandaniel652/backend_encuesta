@@ -33,9 +33,13 @@ export async function getCampaignById(id) {
   return data;
 }
 
+/**
+ * Guarda la campaña y sus preguntas/opciones de forma completa.
+ * Borra todo lo anterior y regenera posiciones y opciones solo de lo activo.
+ */
 export async function saveCampaignFull(id, campaign, questions) {
-
-  await supabase
+  // 1️⃣ Actualizar campaña
+  const { error: campaignError } = await supabase
     .from('campaigns')
     .update({
       name: campaign.name,
@@ -45,18 +49,37 @@ export async function saveCampaignFull(id, campaign, questions) {
     })
     .eq('id', id);
 
-  await supabase
+  if (campaignError) throw campaignError;
+
+  // 2️⃣ Borrar preguntas y opciones existentes
+  const { data: oldQuestions, error: fetchError } = await supabase
     .from('questions')
-    .delete()
+    .select('id')
     .eq('campaign_id', id);
 
-  // 🔥 REGENERAR POSITIONS
+  if (fetchError) throw fetchError;
+
+  const oldQuestionIds = oldQuestions.map(q => q.id);
+
+  if (oldQuestionIds.length) {
+    await supabase
+      .from('question_options')
+      .delete()
+      .in('question_id', oldQuestionIds);
+
+    await supabase
+      .from('questions')
+      .delete()
+      .in('id', oldQuestionIds);
+  }
+
+  // 3️⃣ Insertar preguntas nuevas con posición regenerada
   let position = 1;
 
   for (const q of questions) {
     if (q.is_active === false) continue;
 
-    const { data: newQuestion, error } = await supabase
+    const { data: newQuestion, error: qError } = await supabase
       .from('questions')
       .insert([{
         campaign_id: id,
@@ -67,8 +90,9 @@ export async function saveCampaignFull(id, campaign, questions) {
       .select()
       .single();
 
-    if (error) throw error;
+    if (qError) throw qError;
 
+    // 4️⃣ Insertar opciones activas
     if (q.options?.length) {
       const options = q.options
         .filter(o => o.is_active !== false)
