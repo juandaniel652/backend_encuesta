@@ -4,7 +4,7 @@ import { supabase } from '../config/db.js';
 
 const router = Router();
 
-// 🔹 Obtener todas las campañas
+// 🔹 Obtener todas las campañas (solo activas)
 router.get('/', async (req, res) => {
   try {
     const { data, error } = await supabase
@@ -16,6 +16,9 @@ router.get('/', async (req, res) => {
           question_options!question_options_question_id_fkey (*)
         )
       `)
+      .eq('is_active', true)
+      .eq('questions.is_active', true)
+      .eq('questions.question_options.is_active', true)
       .order('position', { foreignTable: 'questions' });
 
     if (error) throw error;
@@ -25,7 +28,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// 🔹 Obtener campaña por id
+// 🔹 Obtener campaña por id (solo activa)
 router.get('/:id', async (req, res) => {
   try {
     const { data, error } = await supabase
@@ -38,6 +41,9 @@ router.get('/:id', async (req, res) => {
         )
       `)
       .eq('id', req.params.id)
+      .eq('is_active', true)
+      .eq('questions.is_active', true)
+      .eq('questions.question_options.is_active', true)
       .single();
 
     if (error) throw error;
@@ -66,7 +72,7 @@ router.put('/:id/full', async (req, res) => {
 
     if (campaignError) throw campaignError;
 
-    // 2️⃣ Preguntas existentes
+    // 2️⃣ Preguntas existentes (incluye inactivas)
     const { data: existingQuestions, error: fetchError } = await supabase
       .from('questions')
       .select('id')
@@ -77,12 +83,12 @@ router.put('/:id/full', async (req, res) => {
     const existingIds = existingQuestions.map(q => q.id);
     const incomingIds = questions.map(q => q.id).filter(Boolean);
 
-    // 3️⃣ Borrar preguntas que ya no existen
+    // 3️⃣ Soft delete preguntas que ya no existen
     const questionsToDelete = existingIds.filter(id => !incomingIds.includes(id));
     if (questionsToDelete.length) {
       await supabase
         .from('questions')
-        .delete()
+        .update({ is_active: false })
         .in('id', questionsToDelete);
     }
 
@@ -110,11 +116,12 @@ router.put('/:id/full', async (req, res) => {
           const existingOptionIds = existingOptions.map(o => o.id);
           const incomingOptionIds = q.options.map(o => o.id).filter(Boolean);
 
+          // soft delete opciones
           const optionsToDelete = existingOptionIds.filter(id => !incomingOptionIds.includes(id));
           if (optionsToDelete.length) {
             await supabase
               .from('question_options')
-              .delete()
+              .update({ is_active: false })
               .in('id', optionsToDelete);
           }
 
@@ -167,12 +174,11 @@ router.put('/:id/full', async (req, res) => {
   }
 });
 
-// 🔹 Borrar campaña completa (con preguntas y opciones)
+// 🔹 Borrar campaña completa (soft delete)
 router.delete('/:id', async (req, res) => {
   try {
     const campaignId = req.params.id;
 
-    // 1. Borrar opciones de preguntas
     const { data: questions } = await supabase
       .from('questions')
       .select('id')
@@ -183,19 +189,18 @@ router.delete('/:id', async (req, res) => {
     if (questionIds.length) {
       await supabase
         .from('question_options')
-        .delete()
+        .update({ is_active: false })
         .in('question_id', questionIds);
 
       await supabase
         .from('questions')
-        .delete()
+        .update({ is_active: false })
         .in('id', questionIds);
     }
 
-    // 2. Borrar campaña
     await supabase
       .from('campaigns')
-      .delete()
+      .update({ is_active: false })
       .eq('id', campaignId);
 
     res.json({ ok: true });
@@ -204,7 +209,6 @@ router.delete('/:id', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
 
 // 🔹 Exportar router
 export default router;
