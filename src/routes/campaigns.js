@@ -1,5 +1,5 @@
 // services/campaignsService.js
-import db from '../config/db.js'; // tu configuración de DB
+import { supabase } from '../config/db.js';
 
 export async function saveCampaignFull(campaignId, campaignData, questions = []) {
   // 1️⃣ Actualizar campaña
@@ -40,3 +40,5 @@ export async function saveCampaignFull(campaignId, campaignData, questions = [])
 
   return { campaign: { id: campaignId, ...campaignData }, questions };
 }
+
+export default routes;
