@@ -1,14 +1,15 @@
 // services/campaignsService.js
+import { Router } from 'express';
 import { supabase } from '../config/db.js';
 
 export async function saveCampaignFull(campaignId, campaignData, questions = []) {
   // 1️⃣ Actualizar campaña
-  await db('campaigns')
+  await supabase('campaigns')
     .where({ id: campaignId })
     .update(campaignData);
 
   // 2️⃣ Obtener preguntas existentes
-  const existingQuestions = await db('questions')
+  const existingQuestions = await supabase('questions')
     .where({ campaign_id: campaignId });
 
   const incomingIds = questions.map(q => q.id).filter(Boolean);
@@ -19,7 +20,7 @@ export async function saveCampaignFull(campaignId, campaignData, questions = [])
     .map(q => q.id);
 
   if (questionsToDelete.length > 0) {
-    await db('questions')
+    await supabase('questions')
       .whereIn('id', questionsToDelete)
       .del();
   }
@@ -28,12 +29,12 @@ export async function saveCampaignFull(campaignId, campaignData, questions = [])
   for (const q of questions) {
     if (q.id) {
       // actualizar
-      await db('questions')
+      await supabase('questions')
         .where({ id: q.id })
         .update(q);
     } else {
       // insertar nueva pregunta
-      await db('questions')
+      await supabase('questions')
         .insert({ ...q, campaign_id: campaignId });
     }
   }
