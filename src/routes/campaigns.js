@@ -110,3 +110,5 @@ export async function saveCampaignFull(campaignId, campaignData, questions = [])
 
   return { ok: true, campaign: { id: campaignId, ...campaignData }, questions };
 }
+
+export default router;
