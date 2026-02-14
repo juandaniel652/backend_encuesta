@@ -73,6 +73,8 @@ export async function saveCampaignFull(id, campaign, questions) {
       .in('id', oldQuestionIds);
   }
 
+  if (!questions.length) return { ok: true };
+
   // 3️⃣ Insertar preguntas nuevas con posición regenerada
   let position = 1;
 
