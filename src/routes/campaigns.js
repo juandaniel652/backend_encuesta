@@ -28,6 +28,28 @@ router.get('/', async (req, res) => {
   }
 });
 
+// 🔹 Crear nueva campaña
+router.post('/', async (req, res) => {
+  try {
+    const { name, client_type, is_active } = req.body;
+
+    const { data, error } = await supabase
+      .from('campaigns')
+      .insert({
+        name: name || 'Nueva campaña',
+        client_type: client_type || 'without_clients',
+        is_active: is_active ?? true
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+    res.status(201).json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // 🔹 Obtener campaña por id (solo activa)
 router.get('/:id', async (req, res) => {
   try {
@@ -209,6 +231,7 @@ router.delete('/:id', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
 
 // 🔹 Exportar router
 export default router;
